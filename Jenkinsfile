@@ -1,5 +1,12 @@
 pipeline {
     agent any
+    parameters {
+        choice(
+            name: 'MODULE',
+            choices: ['SQL', 'Python', 'Notebook', 'All'],
+            description: 'Choose which module to execute'
+        )
+    }
     environment {
         SNOWSQL_PATH = '"C:\\Program Files\\Snowflake SnowSQL\\snowsql.exe"'  // Path to SnowSQL executable
         SNOWSQL_CONNECTION = 'demo'  // Connection name from SnowSQL configuration
@@ -10,58 +17,47 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/manjunathbabur/snowflake-cicd-demo1.git'  // Replace with your Git repository URL
             }
         }
-        stage('Test Files') {
+        stage('Run Selected Module') {
             steps {
                 script {
-                    def testFiles = [
-                        'tests/test_create_table.sql',
-                        'tests/test_insert_data.py',
-                        'tests/test_notebooks.py'
-                    ]
-                    for (testFile in testFiles) {
-                        echo "Running test: ${testFile}"
-                        if (testFile.endsWith('.sql')) {
+                    if (params.MODULE == 'SQL' || params.MODULE == 'All') {
+                        echo "Running SQL Module..."
+                        def sqlFiles = [
+                            'sql/create_table.sql',
+                            'sql/insert_data.sql',
+                            'sql/update_data.sql'
+                        ]
+                        for (file in sqlFiles) {
                             bat """
-                                ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "PUT 'file://C:/ProgramData/Jenkins/.jenkins/workspace/snowflake-ci-cd-demo/${testFile}' @PROD_NOTEBOOK_STAGE;"
-                                ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "RUN 'file://@PROD_NOTEBOOK_STAGE/${testFile}';"
-                            """
-                        } else if (testFile.endsWith('.py')) {
-                            bat "python ${testFile}"
-                        }
-                    }
-                }
-            }
-        }
-        stage('Update Files to Snowflake Stage') {
-            steps {
-                script {
-                    def files = [
-                        'sql/create_table.sql',
-                        'scripts/process_data.py',
-                        'notebooks/analysis_notebook.ipynb'
-                    ]
-                    for (file in files) {
-                        bat """
-                            ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "PUT 'file://C:/ProgramData/Jenkins/.jenkins/workspace/snowflake-ci-cd-demo/${file.replace('\\', '/')}' @PROD_NOTEBOOK_STAGE;"
-                        """
-                    }
-                }
-            }
-        }
-        stage('Run SQL and Python Files') {
-            steps {
-                script {
-                    def filesToRun = [
-                        'sql/create_table.sql',
-                        'scripts/process_data.py'
-                    ]
-                    for (file in filesToRun) {
-                        if (file.endsWith('.sql')) {
-                            bat """
+                                ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "PUT 'file://C:/ProgramData/Jenkins/.jenkins/workspace/snowflake-cicd-demo1/${file.replace('\\', '/')}' @PROD_NOTEBOOK_STAGE;"
                                 ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "RUN 'file://@PROD_NOTEBOOK_STAGE/${file}';"
                             """
-                        } else if (file.endsWith('.py')) {
-                            bat "python ${file}"
+                        }
+                    }
+
+                    if (params.MODULE == 'Python' || params.MODULE == 'All') {
+                        echo "Running Python Module..."
+                        def pythonFiles = [
+                            'scripts/process_data.py',
+                            'scripts/generate_report.py'
+                        ]
+                        for (file in pythonFiles) {
+                            bat """
+                                python ${file}
+                            """
+                        }
+                    }
+
+                    if (params.MODULE == 'Notebook' || params.MODULE == 'All') {
+                        echo "Running Notebook Module..."
+                        def notebooks = [
+                            'notebooks/analysis_notebook.ipynb',
+                            'notebooks/summary_notebook.ipynb'
+                        ]
+                        for (notebook in notebooks) {
+                            bat """
+                                jupyter nbconvert --execute --to notebook --inplace ${notebook}
+                            """
                         }
                     }
                 }
@@ -70,14 +66,14 @@ pipeline {
     }
     post {
         success {
-            mail to: 'team@example.com',
-                 subject: 'Pipeline Success: Snowflake CI/CD Demo',
-                 body: 'All stages completed successfully. Files have been uploaded and executed in Snowflake.'
+            mail to: 'manjunathbabur88@gmail.com',
+                 subject: "Pipeline Success: ${params.MODULE} Module",
+                 body: "The ${params.MODULE} module completed successfully. Files have been uploaded and executed in Snowflake."
         }
         failure {
-            mail to: 'team@example.com',
-                 subject: 'Pipeline Failure: Snowflake CI/CD Demo',
-                 body: 'One or more stages failed. Please check the Jenkins logs for more details.'
+            mail to: 'manjunathbabur88@gmail',
+                 subject: "Pipeline Failure: ${params.MODULE} Module",
+                 body: "The ${params.MODULE} module encountered an error. Please check the Jenkins logs for details."
         }
     }
 }
