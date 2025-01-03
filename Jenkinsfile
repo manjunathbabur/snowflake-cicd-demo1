@@ -29,7 +29,7 @@ pipeline {
                         ]
                         for (file in sqlFiles) {
                             bat """
-                                ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "PUT 'file://C:/ProgramData/Jenkins/.jenkins/workspace/snowflake-cicd-demo1/${file.replace('\\', '/')}' @PROD_NOTEBOOK_STAGE;"
+                                ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "PUT 'file://C:/ProgramData/Jenkins/.jenkins/workspace/snowflake_demo1/${file.replace('\\', '/')}' @PROD_NOTEBOOK_STAGE;"
                                 ${env.SNOWSQL_PATH} -c ${env.SNOWSQL_CONNECTION} -q "RUN 'file://@PROD_NOTEBOOK_STAGE/${file}';"
                             """
                         }
