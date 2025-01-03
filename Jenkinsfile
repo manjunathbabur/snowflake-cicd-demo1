@@ -66,14 +66,10 @@ pipeline {
     }
     post {
         success {
-            mail to: 'manjunathbabur88@gmail.com',
-                 subject: "Pipeline Success: ${params.MODULE} Module",
-                 body: "The ${params.MODULE} module completed successfully. Files have been uploaded and executed in Snowflake."
+            echo "Pipeline completed successfully for module: ${params.MODULE}."
         }
         failure {
-            mail to: 'manjunathbabur88@gmail',
-                 subject: "Pipeline Failure: ${params.MODULE} Module",
-                 body: "The ${params.MODULE} module encountered an error. Please check the Jenkins logs for details."
+            echo "Pipeline failed for module: ${params.MODULE}. Please check the logs."
         }
     }
 }
