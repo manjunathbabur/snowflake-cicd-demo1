@@ -23,12 +23,22 @@ stage('Setup Environment') {
             echo "Setting up Python environment..."
             bat """
                 python -m pip install --upgrade pip setuptools wheel
-                python -m pip uninstall -y snowflake-connector-python botocore requests
                 python -m pip install snowflake-connector-python
             """
         }
     }
 }
+stage('Install Snowflake Connector') {
+    steps {
+        script {
+            echo "Installing precompiled Snowflake connector..."
+            bat """
+                pip install path\\to\\snowflake_connector_python-3.13.1-cp39-cp39-win_amd64.whl
+            """
+        }
+    }
+}
+
 
         stage('Run Selected Module') {
             steps {
