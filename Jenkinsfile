@@ -17,6 +17,15 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/manjunathbabur/snowflake-cicd-demo1.git'  // Replace with your Git repository URL
             }
         }
+          stages {
+        stage('Setup Python Environment') {
+            steps {
+                bat """
+                    python -m pip install --upgrade pip
+                    python -m pip install --upgrade snowflake-connector-python
+                """
+            }
+        }
         stage('Run Selected Module') {
             steps {
                 script {
