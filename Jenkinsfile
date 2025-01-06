@@ -20,7 +20,7 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 bat """
-                    python -m pip install --upgrade pip
+                    python -m pip install --upgrade pip setuptools wheel
                     python -m pip install --upgrade snowflake-connector-python
                 """
             }
