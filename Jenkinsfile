@@ -17,22 +17,19 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/manjunathbabur/snowflake-cicd-demo1.git'  // Replace with your Git repository URL
             }
         }
-  stage('Setup Environment') {
+stage('Setup Environment') {
     steps {
         script {
-            try {
-                echo "Setting up Python environment..."
-                bat """
-                    python -m pip install --upgrade pip setuptools wheel
-                    python -m pip install asn1crypto filelock sortedcontainers tomlkit packaging
-                    python -m pip install snowflake-connector-python --no-build-isolation
-                """
-            } catch (Exception e) {
-                error "Failed to set up Python environment. Check logs for details."
-            }
+            echo "Setting up Python environment..."
+            bat """
+                python -m pip install --upgrade pip setuptools wheel
+                python -m pip uninstall -y snowflake-connector-python botocore requests
+                python -m pip install snowflake-connector-python
+            """
         }
     }
 }
+
         stage('Run Selected Module') {
             steps {
                 script {
