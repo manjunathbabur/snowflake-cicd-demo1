@@ -17,7 +17,6 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/manjunathbabur/snowflake-cicd-demo1.git'  // Replace with your Git repository URL
             }
         }
-          stages {
         stage('Setup Python Environment') {
             steps {
                 bat """
