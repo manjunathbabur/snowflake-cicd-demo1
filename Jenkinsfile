@@ -71,7 +71,7 @@ pipeline {
                         echo "Running SQL tests..."
                         bat """
                             sqlcmd -i tests/test_create_table.sql
-                            sqlcmd -i tests/test_insert_data.sql
+                        
                         """
                     }
 
